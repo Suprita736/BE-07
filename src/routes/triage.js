@@ -1,5 +1,6 @@
 const express = require('express');
 const { TriageInputSchema } = require('../llm/schema');
+const { triageMessage } = require('../llm/triage');
 
 const router = express.Router();
 
@@ -11,7 +12,7 @@ const STUB_RESPONSE = {
     reason: 'Stub response for local development.',
 };
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
     // Guard: body must exist and be an object (i.e. Content-Type: application/json was parsed)
     if (!req.body || typeof req.body !== 'object') {
         return res.status(400).json({ error: 'Invalid input', details: [{ field: 'body', message: 'Request body must be JSON' }] });
@@ -33,8 +34,25 @@ router.post('/', (req, res) => {
         return res.json(STUB_RESPONSE);
     }
 
-    // Real LLM call will be wired in Stage 2
-    return res.status(501).json({ error: 'LLM integration not yet implemented.' });
+    try {
+        const rawContent = await triageMessage(req.body.text);
+        try {
+            const parsed = JSON.parse(rawContent);
+            return res.json(parsed);
+        } catch (jsonErr) {
+            // If the model output is not valid JSON, return it as raw string or error
+            return res.status(500).json({
+                error: 'Model returned invalid JSON structure',
+                rawContent,
+            });
+        }
+    } catch (err) {
+        return res.status(500).json({
+            error: 'LLM request failed',
+            message: err.message,
+        });
+    }
 });
 
 module.exports = router;
+
