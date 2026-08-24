@@ -51,6 +51,11 @@ router.post('/', async (req, res) => {
         return res.status(400).json({ error: 'Invalid input', details });
     }
 
+    // Kill switch: return 503 if AI is disabled
+    if (process.env.LLM_ENABLED === 'false') {
+        return res.status(503).json({ error: 'AI service is currently disabled' });
+    }
+
     // Stub mode: skip LLM entirely, but still validate output against schema
     if (process.env.LLM_STUB === '1') {
         const validationResult = TriageOutputSchema.safeParse(STUB_RESPONSE);

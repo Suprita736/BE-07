@@ -1,13 +1,13 @@
 const fs = require('fs');
 const path = require('path');
-const client = require('./client');
+const { executeCompletionWithSafeguards } = require('./client');
 const { TriageOutputSchema } = require('./schema');
 
 const PROMPT_PATH = path.join(__dirname, '..', 'prompts', 'triage-v1.md');
 
-// Helper to make a completion call
+// Helper to make a completion call using the centralized safeguard wrapper
 async function getCompletion(messages) {
-  const response = await client.chat.completions.create({
+  const response = await executeCompletionWithSafeguards({
     model: process.env.LLM_MODEL,
     messages: messages,
     response_format: { type: 'json_object' }
