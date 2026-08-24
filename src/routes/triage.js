@@ -1,8 +1,30 @@
 const express = require('express');
-const { TriageInputSchema } = require('../llm/schema');
+const fs = require('fs');
+const path = require('path');
+const { TriageInputSchema, TriageOutputSchema } = require('../llm/schema');
 const { triageMessage } = require('../llm/triage');
 
 const router = express.Router();
+
+const QUARANTINE_PATH = path.join(__dirname, '..', '..', 'logs', 'quarantine.jsonl');
+
+function logToQuarantine(requestText, rawResponse, repairResponse, error) {
+    const logsDir = path.dirname(QUARANTINE_PATH);
+    if (!fs.existsSync(logsDir)) {
+        fs.mkdirSync(logsDir, { recursive: true });
+    }
+
+    const logRecord = {
+        timestamp: new Date().toISOString(),
+        requestText,
+        model: process.env.LLM_MODEL || 'unknown',
+        rawResponse,
+        repairResponse,
+        error,
+    };
+
+    fs.appendFileSync(QUARANTINE_PATH, JSON.stringify(logRecord) + '\n', 'utf-8');
+}
 
 // Deterministic stub response returned when LLM_STUB=1
 const STUB_RESPONSE = {
@@ -13,7 +35,7 @@ const STUB_RESPONSE = {
 };
 
 router.post('/', async (req, res) => {
-    // Guard: body must exist and be an object (i.e. Content-Type: application/json was parsed)
+    // Guard: body must exist and be an object
     if (!req.body || typeof req.body !== 'object') {
         return res.status(400).json({ error: 'Invalid input', details: [{ field: 'body', message: 'Request body must be JSON' }] });
     }
@@ -29,24 +51,34 @@ router.post('/', async (req, res) => {
         return res.status(400).json({ error: 'Invalid input', details });
     }
 
-    // Stub mode: skip LLM entirely
+    // Stub mode: skip LLM entirely, but still validate output against schema
     if (process.env.LLM_STUB === '1') {
-        return res.json(STUB_RESPONSE);
+        const validationResult = TriageOutputSchema.safeParse(STUB_RESPONSE);
+        if (!validationResult.success) {
+            return res.status(500).json({ error: 'Stub response failed output validation', details: validationResult.error.issues });
+        }
+        return res.json(validationResult.data);
     }
 
     try {
-        const rawContent = await triageMessage(req.body.text);
-        try {
-            const parsed = JSON.parse(rawContent);
-            return res.json(parsed);
-        } catch (jsonErr) {
-            // If the model output is not valid JSON, return it as raw string or error
-            return res.status(500).json({
-                error: 'Model returned invalid JSON structure',
-                rawContent,
+        const result = await triageMessage(req.body.text);
+
+        if (result.success) {
+            return res.json(result.data);
+        } else {
+            // Quarantine the failure
+            logToQuarantine(
+                req.body.text,
+                result.rawResponse,
+                result.repairResponse,
+                result.error
+            );
+            return res.status(422).json({
+                error: 'Unable to produce valid triage result',
             });
         }
     } catch (err) {
+        // Handle unexpected API/network/internal errors
         return res.status(500).json({
             error: 'LLM request failed',
             message: err.message,
@@ -55,4 +87,3 @@ router.post('/', async (req, res) => {
 });
 
 module.exports = router;
-
