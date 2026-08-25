@@ -1,0 +1,149 @@
+[
+  {
+    "text": "I need to update my credit card information.",
+    "expected": {
+      "category": "billing",
+      "urgency": "normal"
+    }
+  },
+  {
+    "text": "Can I get a refund for last month's subscription?",
+    "expected": {
+      "category": "billing",
+      "urgency": "normal"
+    }
+  },
+  {
+    "text": "My account was billed twice in August.",
+    "expected": {
+      "category": "billing",
+      "urgency": "high"
+    }
+  },
+  {
+    "text": "How do I download my invoice?",
+    "expected": {
+      "category": "billing",
+      "urgency": "low"
+    }
+  },
+  {
+    "text": "I want to cancel my premium plan.",
+    "expected": {
+      "category": "billing",
+      "urgency": "normal"
+    }
+  },
+  {
+    "text": "The login button is completely unresponsive.",
+    "expected": {
+      "category": "bug",
+      "urgency": "high"
+    }
+  },
+  {
+    "text": "I am getting a 500 error when exporting data.",
+    "expected": {
+      "category": "bug",
+      "urgency": "high"
+    }
+  },
+  {
+    "text": "There is a typo in the main page title.",
+    "expected": {
+      "category": "bug",
+      "urgency": "low"
+    }
+  },
+  {
+    "text": "The search bar results are blank even with valid keywords.",
+    "expected": {
+      "category": "bug",
+      "urgency": "normal"
+    }
+  },
+  {
+    "text": "My session logs out every 5 minutes.",
+    "expected": {
+      "category": "bug",
+      "urgency": "normal"
+    }
+  },
+  {
+    "text": "Can you add an export to CSV option?",
+    "expected": {
+      "category": "feature",
+      "urgency": "normal"
+    }
+  },
+  {
+    "text": "I want a dark mode for the dashboard.",
+    "expected": {
+      "category": "feature",
+      "urgency": "low"
+    }
+  },
+  {
+    "text": "It would be great if we had slack notifications.",
+    "expected": {
+      "category": "feature",
+      "urgency": "normal"
+    }
+  },
+  {
+    "text": "Please support uploading HEIC image formats.",
+    "expected": {
+      "category": "feature",
+      "urgency": "normal"
+    }
+  },
+  {
+    "text": "We need a dashboard widget to show weekly sales.",
+    "expected": {
+      "category": "feature",
+      "urgency": "normal"
+    }
+  },
+  {
+    "text": "Hello, I just wanted to say thank you for the great app!",
+    "expected": {
+      "category": "other",
+      "urgency": "low"
+    }
+  },
+  {
+    "text": "What is your privacy policy for GDPR?",
+    "expected": {
+      "category": "other",
+      "urgency": "low"
+    }
+  },
+  {
+    "text": "Something looks wrong with my account.",
+    "expected": {
+      "category": "other",
+      "urgency": "normal"
+    }
+  },
+  {
+    "text": "Can you change the way this works?",
+    "expected": {
+      "category": "feature",
+      "urgency": "normal"
+    }
+  },
+  {
+    "text": "I don't understand this charge.",
+    "expected": {
+      "category": "billing",
+      "urgency": "normal"
+    }
+  },
+  {
+    "text": "The dashboard isn't what I expected.",
+    "expected": {
+      "category": "other",
+      "urgency": "low"
+    }
+  }
+]
